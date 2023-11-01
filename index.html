@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>Eye Detector</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <html>
+  <head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="Cache-control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <title>Eye Detector</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.8.0/lib/p5.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/p5@latest/lib/p5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/p5@latest/lib/addons/p5.dom.min.js"></script>
+    <link href="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
+
+    <script language="javascript" type="text/javascript" src="https://cdn.jsdelivr.net/npm/p5.serialserver@0.0.28/lib/p5.serialport.js"></script>
+
+  </head>
+  <body>
+
+    <div id="liveView" class="videoView">
+      <!-- BUTTON -->
+      <button id="webcamButton" class="mdc-button mdc-button--raised">
+        <span class="mdc-button__ripple"></span>
+        <span class="mdc-button__label">ENABLE WEBCAM</span>
+      </button>
+      <!-- CAMERA OUTPUT -->
+      <div style="position: relative;">
+        <video id="webcam" style="position: abso" autoplay playsinline></video>
+        <canvas class="output_canvas" id="output_canvas" style="position: absolute; left: 0px; top: 0px;"></canvas>
+      </div>
+    </div>
+
+    <!-- LANDMARKERS -->
+    <div class="blend-shapes">
+      <ul class="blend-shapes-list" id="video-blend-shapes"></ul>
+    </div>
+
+    <button onclick="myFunction()">Click me</button>
+
+  </body>
+  </html>
+  <script type="module" src="script.js"></script>
+  <script type="text/javascript">
+    let serial;
+    let outByte = '';
+
+    function setup() {
+      createCanvas(320, 260);  
+      serial = new p5.SerialPort();
+      serial.open('/dev/tty.usbmodem1101');
+      serial.on('connected', serverConnected);
+      serial.on('list', gotList);
+      serial.on('data', gotData);
+      serial.on('error', gotError);
+      serial.on('open', gotOpen);
+      serial.on('close', gotClose);
+    }
+
+    function gotList(thelist) {
+     print("List of Serial Ports:");
+
+     for (let i = 0; i < thelist.length; i++) {
+      print(i + " " + thelist[i]);
+     }
+    }
+
+    function gotClose(){
+     print("Serial Port is Closed");
+     latestData = "Serial Port is Closed";
+    }
+
+    function gotOpen() {print("Serial Port is Open");}
+    function gotError(theerror) {print(theerror);}
+    function serverConnected() {print("Connected to Server");}
+
+
+    function gotData() {
+     let currentString = serial.readLine();
+      trim(currentString);
+     if (!currentString) return;
+     console.log(currentString);
+     latestData = currentString;
+    }
+
+    function myFunction(){
+      outByte = 'O';
+      serial.write(outByte);
+      console.log(outByte);
+    }
+
+    function drawBlendShapes(el, blendShapes) {
+      if (!blendShapes || blendShapes.length < 1) {return;}
+
+      let data = blendShapes[0];
+      let categoryName9 = data.categories[9].categoryName;
+      let categoryName10 = data.categories[10].categoryName;
+      let score9 = data.categories[9].score;
+      let score10 = data.categories[10].score;
+
+      // console.log(categoryName9 + score9);
+      // console.log(categoryName10 + score10);
+
+      // if(serial && serial.isOpen()){
+        if(score9 > 0.5 && score10 > 0.5){
+          outByte = 'C';
+          serial.write(outByte);
+          console.log(outByte);
+          document.body.style.backgroundColor = "green";
+        }else{
+          outByte = 'O';
+          serial.write(outByte);
+          console.log(outByte);
+          document.body.style.backgroundColor = "white";
+        }
+      }
+    //}
+  </script>
+</body>
+</html>
