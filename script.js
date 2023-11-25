@@ -192,7 +192,7 @@ async function predictWebcam() {
   if (webcamRunning === true) {
     window.requestAnimationFrame(predictWebcam);
   }
-}
+} 
 
 // function drawBlendShapes(el, blendShapes) {
 //   if (!blendShapes || blendShapes.length < 1) {return;}
