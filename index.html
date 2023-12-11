@@ -39,6 +39,9 @@
       </div>
     </div>
 
+    <audio id="intro" src="audio/first.wav"></audio>
+    <audio id="repeat" src="audio/repeat.wav"></audio>
+
     <!-- LANDMARKERS -->
     <div class="blend-shapes">
       <ul class="blend-shapes-list" id="video-blend-shapes"></ul>
@@ -47,16 +50,27 @@
     <button onclick="myFunction()">Click me</button>
 
   </body>
-  </html>
+  
   <script type="module" src="script.js"></script>
   <script type="text/javascript">
+    
     let serial;
     let outByte = '';
+    let data;
+    let categoryName3;
+    let categoryName9;
+    let categoryName10;
+    let score3;
+    let score9;
+    let score10;
+    let running = false;
+
+    const audio = document.getElementById("intro");
 
     function setup() {
       createCanvas(320, 260);  
       serial = new p5.SerialPort();
-      serial.open('/dev/tty.usbmodem1101');
+      serial.open('/dev/tty.usbmodem101');
       serial.on('connected', serverConnected);
       serial.on('list', gotList);
       serial.on('data', gotData);
@@ -67,21 +81,13 @@
 
     function gotList(thelist) {
      print("List of Serial Ports:");
-
-     for (let i = 0; i < thelist.length; i++) {
-      print(i + " " + thelist[i]);
-     }
+     for (let i = 0; i < thelist.length; i++) {print(i + " " + thelist[i]);}
     }
 
     function gotClose(){
      print("Serial Port is Closed");
      latestData = "Serial Port is Closed";
     }
-
-    function gotOpen() {print("Serial Port is Open");}
-    function gotError(theerror) {print(theerror);}
-    function serverConnected() {print("Connected to Server");}
-
 
     function gotData() {
      let currentString = serial.readLine();
@@ -97,32 +103,102 @@
       console.log(outByte);
     }
 
+    function gotOpen() {print("Serial Port is Open");}
+    function gotError(theerror) {print(theerror);}
+    function serverConnected() {print("Connected to Server");}
+
+    //MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN
+    //MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN
+
     function drawBlendShapes(el, blendShapes) {
-      if (!blendShapes || blendShapes.length < 1) {return;}
+      if (!blendShapes || blendShapes.length < 1) {
+        outByte = 'X';
+        serial.write(outByte);
+        console.log(outByte);
+        document.body.style.backgroundColor = "black";
+        if(running == true){
+          console.log("HUMAN REMOVED");
+          audio.pause();
+          repeat.pause();
+          audio.currentTime = 0;
+          repeat.currentTime = 0;
+          reset();
+          running = false;
+        }
+        return;
+      }else{run();}
 
-      let data = blendShapes[0];
-      let categoryName9 = data.categories[9].categoryName;
-      let categoryName10 = data.categories[10].categoryName;
-      let score9 = data.categories[9].score;
-      let score10 = data.categories[10].score;
+      data = blendShapes[0];
+      categoryName3 = data.categories[3].categoryName;
+      categoryName9 = data.categories[9].categoryName;
+      categoryName10 = data.categories[10].categoryName;
+      score3 = data.categories[3].score;
+      score9 = data.categories[9].score;
+      score10 = data.categories[10].score;
 
-      // console.log(categoryName9 + score9);
-      // console.log(categoryName10 + score10);
+      // eyeState();
 
-      // if(serial && serial.isOpen()){
+      }
+
+      function eyeState(){
+        console.log("EYE STATE");
         if(score9 > 0.5 && score10 > 0.5){
           outByte = 'C';
           serial.write(outByte);
-          console.log(outByte);
+          // console.log(outByte);
           document.body.style.backgroundColor = "green";
+          return 'C';
         }else{
           outByte = 'O';
           serial.write(outByte);
-          console.log(outByte);
+          // console.log(outByte);
           document.body.style.backgroundColor = "white";
+          return 'O';
         }
       }
-    //}
+
+      let consecutiveCCount = 0;
+
+      function run(){
+        document.body.style.backgroundColor = "white";
+        console.log("RUNNING");
+        running = true;
+        audio.play();
+        
+        console.log(audio.currentTime);
+        if(audio.currentTime > 11){ //announcement finished
+          console.log("ANNOUNCMENT FIN");
+          audio.pause();
+          repeat.loop = true;
+          repeat.play();
+          eyeState();
+          let eyeResult = eyeState();
+          console.log('EYERESULT: ' + eyeResult);
+
+          let initial_close = setInterval(function () {
+            let eyeResult = eyeState();
+            if (eyeResult === 'C') {consecutiveCCount++;}
+            else {consecutiveCCount = 0;}
+          }, 100);
+
+          if (consecutiveCCount >= 2000 / 100) {
+            console.log("Eye state has been 'C' for 2 seconds straight.");
+            repeat.pause();
+            repeat.currentTime = 0;
+            clearInterval(initial_close);
+            audio.play();
+          } else {console.log("Eye state is not 'C' for 2 seconds straight yet.");}
+
+          //if(currentTime > 48) //poem intro finished
+          //send '1' to arduino, and arduino enters state 1 : opens curtains, enables eye check. Runs if eyes closed, stops if eyes open
+          //if(currentTime > 03:10)// stop eyeState() checking, rotate stageFront,
+        }
+      }
+
+      function reset(){
+        console.log("reset");
+      }
+
   </script>
 </body>
 </html>

@@ -9,52 +9,6 @@ let enableWebcamButton;
 let webcamRunning = false;
 const videoWidth = 480;
 
-// var serial;
-// var outByte = '';
-
-// function setup() {
-//   createCanvas(320, 260);  
-//   serial = new p5.SerialPort();
-//   serial.open('/dev/tty.usbmodem101');
-//   serial.on('connected', serverConnected);
-//   serial.on('list', gotList);
-//   serial.on('data', gotData);
-//   serial.on('error', gotError);
-//   serial.on('open', gotOpen);
-//   serial.on('close', gotClose);
-// }
-
-// function gotList(thelist) {
-//  print("List of Serial Ports:");
-
-//  for (let i = 0; i < thelist.length; i++) {
-//   print(i + " " + thelist[i]);
-//  }
-// }
-
-// function gotClose(){
-//  print("Serial Port is Closed");
-//  latestData = "Serial Port is Closed";
-// }
-
-// function gotOpen() {print("Serial Port is Open");}
-// function gotError(theerror) {print(theerror);}
-// function serverConnected() {print("Connected to Server");}
-
-
-// function gotData() {
-//  let currentString = serial.readLine();
-//   trim(currentString);
-//  if (!currentString) return;
-//  console.log(currentString);
-//  latestData = currentString;
-// }
-
-// function myFunction(){
-//       outByte = 'O';
-//       serial.write(outByte);
-//       console.log(outByte);
-//     }
 
 //CREATE LANDMARKER CREATE LANDMARKER CREATE LANDMARKER CREATE LANDMARKER CREATE LANDMARKER
 //CREATE LANDMARKER CREATE LANDMARKER CREATE LANDMARKER CREATE LANDMARKER CREATE LANDMARKER
@@ -193,30 +147,3 @@ async function predictWebcam() {
     window.requestAnimationFrame(predictWebcam);
   }
 } 
-
-// function drawBlendShapes(el, blendShapes) {
-//   if (!blendShapes || blendShapes.length < 1) {return;}
-
-//   let data = blendShapes[0];
-//   let categoryName9 = data.categories[9].categoryName;
-//   let categoryName10 = data.categories[10].categoryName;
-//   let score9 = data.categories[9].score;
-//   let score10 = data.categories[10].score;
-
-//   // console.log(categoryName9 + score9);
-//   // console.log(categoryName10 + score10);
-
-//   if(serial && serial.isOpen()){
-//     if(score9 > 0.5 && score10 > 0.5){
-//       console.log("EYES CLOSED");
-//       outByte = 'C';
-//       serial.write(outByte);
-//       document.body.style.backgroundColor = "green";
-//     }else{
-//       console.log("EYES OPEN");
-//       outByte = 'O';
-//       serial.write(outByte);
-//       document.body.style.backgroundColor = "white";
-//     }
-//   }
-// }
