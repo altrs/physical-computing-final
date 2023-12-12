@@ -105,12 +105,6 @@
       latestData = currentString;
     }
 
-    function myFunction() {
-      outByte = 'L';
-      serial.write(outByte);
-      console.log(outByte);
-    }
-
     function gotOpen() {
       print("Serial Port is Open");
     }
@@ -123,8 +117,15 @@
       print("Connected to Server");
     }
 
+    function myFunction() {
+      serial.write('1');
+      console.log("my function");
+    }
+
 // MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN
 // MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN
+
+let curtainsOpened = false;
 
 function drawBlendShapes(el, blendShapes) {
   if (!blendShapes || blendShapes.length < 1) {
@@ -156,15 +157,8 @@ function send(value) {
   }
 }
 
-document.addEventListener('keydown', function (event) {overrideKey = event.key;});
-document.addEventListener('keyup', function () {overrideKey = null;});
-
 function eyeState() {
-  if (overrideKey && overrideKey.toLowerCase() === 'x') {
-    send("C");
-    document.body.style.backgroundColor = "green";
-    return 'C';
-  } else if (score9 > 0.5 && score10 > 0.5) {
+  if (score9 > 0.5 || score10 > 0.5) {
     send("C");
     document.body.style.backgroundColor = "green";
     return 'C';
@@ -188,13 +182,19 @@ function run() {
     repeat.loop = true;
     
     eyeState();
-    initialCloseInterval = setInterval(function () {
-      console.log("INTERVAL RUNNING");
-      if (outByte === "C") {consecutiveCCount++;}
-      else {consecutiveCCount = 0;}
-    }, 100);
+    if(curtainsOpened == false){
+      serial.write('1');
+      console.log("OPEN CURTAINS");
+      curtainsOpened = true;
+    }
+    
+    // initialCloseInterval = setInterval(function () {
+    //   console.log("INTERVAL RUNNING");
+    //   if (outByte === "C") {consecutiveCCount++;}
+    //   else {consecutiveCCount = 0;}
+    // }, 100);
 
-    if (consecutiveCCount >= 2000 / 100) {run2();}
+    // if (consecutiveCCount >= 2000 / 100) {run2();}
   }
 }
 
