@@ -1,0 +1,99 @@
+#include <Servo.h>
+
+Servo s_main;
+Servo s_curtains;
+Servo s_stagefront;
+String curtainsState = "Closed";
+
+char incomingByte;
+unsigned long previousTime = 0;
+int state = 0;
+
+unsigned long startTime = 0; // for main servo pulse
+
+int pos = 0;
+String stagefront_state = "Theatre";
+
+void setup() {
+ Serial.begin(9600);
+ s_curtains.attach(5);
+ s_curtains.write(90);
+ s_main.attach(6);
+ s_main.write(90);
+ s_stagefront.attach(9);
+ s_stagefront.write(pos);
+}
+
+void loop() {
+
+ if (Serial.available() > 0) {
+   incomingByte = Serial.read();
+  
+   if (incomingByte == '1'){
+     s_curtains.write(63);
+     delay(4500);
+     s_curtains.write(90);
+   }
+   else if (incomingByte == '2'){
+     s_curtains.write(118);
+     delay(5000);
+     s_curtains.write(90);
+   }
+   else if(incomingByte == 'C'){
+      unsigned long currentTime = millis();
+      if (currentTime - startTime < 150) {s_main.write(84);}
+      else if (currentTime - startTime < 1000) {s_main.write(89);}
+      else {startTime = currentTime;}
+    }
+   else if(incomingByte == 'O'){
+     s_main.write(90);
+   }
+   else if(incomingByte == 'T'){
+    if(stagefront_state == "Universe"){
+      for (pos = 0; pos <= 180; pos += 1) {
+        s_stagefront.write(pos);
+        delay(60);
+      }
+      stagefront_state = "Theatre";
+    }
+   }
+   else if(incomingByte == 'U'){
+    if(stagefront_state == "Theatre"){
+     for (pos = 180; pos >= 20; pos -= 1) {
+        s_stagefront.write(pos);
+        delay(60);
+      }
+      stagefront_state = "Universe";
+   }
+ }
+}}
+
+
+  
+    // s_curtains.write(100); //opens
+    // delay(9000);
+    // s_curtains.write(80); //closes
+    // delay(6000);
+
+    // s_main.write(84);
+    // delay(150);
+    // s_main.write(89);
+    // delay(1000);
+
+  //MAIN STAGE ROTATION -->
+
+//   if (Serial.available() > 0) {
+//    incomingByte = Serial.read();
+//  }
+
+//   if (incomingByte == 'C') {
+//     // digitalWrite(LP_eyesClosedDetected, LOW);
+//     s_main.write(84);
+//     delay(150);
+//     s_main.write(89);
+//     delay(1000);
+//   }
+//   if (incomingByte == 'O') {
+//     // digitalWrite(LP_eyesClosedDetected, HIGH);
+//     s_main.write(90);
+//   }

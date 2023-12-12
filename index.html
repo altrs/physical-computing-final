@@ -118,7 +118,7 @@
     }
 
     function myFunction() {
-      serial.write('1');
+      serial.write('T');
       console.log("my function");
     }
 
@@ -129,6 +129,7 @@ let curtainsOpened = false;
 let eyeStateValue = '';
 let prelude_running = false;
 let intro_ran = false;
+let sendEyeState = false;
 
 function drawBlendShapes(el, blendShapes) {
   if (!blendShapes || blendShapes.length < 1) {
@@ -150,12 +151,21 @@ function drawBlendShapes(el, blendShapes) {
 function eyeState() {
   if (score9 > 0.5 || score10 > 0.5) {
     eyeStateValue = 'C';
-    serial.write(eyeStateValue);
+    if(audio.paused){
+      audio.play();
+      repeat.pause();
+    }
+    if(sendEyeState == true){serial.write(eyeStateValue);}
     console.log(eyeStateValue);
     document.body.style.backgroundColor = "green";
   } else {
     eyeStateValue = 'O';
-    serial.write(eyeStateValue);
+    if(repeat.paused){
+      audio.pause();
+      repeat.currentTime = 0;
+      repeat.play(); 
+    }
+    if(sendEyeState == true){serial.write(eyeStateValue);}
     console.log(eyeStateValue);
     document.body.style.backgroundColor = "white";
   }
@@ -178,7 +188,10 @@ function run() {
 
       if(prelude_running == false){
         if (eyeStateValue === 'C') {setTimeout(() => {
-          if (eyeStateValue === 'C') {prelude();}}, 2000);}}
+          if (eyeStateValue === 'C') {
+            setInterval(eyeState, 300);
+            prelude();
+          }}, 2000);}}
     }
   }
 }
@@ -195,7 +208,13 @@ function prelude(){
       serial.write('1');
       console.log("OPEN CURTAINS");
       curtainsOpened = true;
+      sendEyeState = true;
+      main();
     }}, 29000);
+}
+
+function main(){
+  console.log("is eyestate still running?");
 }
 
 
@@ -206,17 +225,15 @@ function reset() {
   audio.currentTime = 0;
   repeat.currentTime = 0;
   running = false;
-}
+  sendEyeState = false;
 
-// function send(value) {
-//   const currentTime = new Date().getTime();
-//   if (currentTime - lastSendTime >= sendInterval) {
-//     outByte = value;
-//     serial.write(outByte);
-//     console.log(outByte);
-//     lastSendTime = currentTime;
-//   }
-// }
+  if(curtainsOpened == true){
+    serial.write('2');
+    console.log("CLOSE CURTAINS");
+    curtainsOpened = false;
+  }
+
+}
 
   </script>
 </body>
