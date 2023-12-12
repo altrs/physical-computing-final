@@ -128,10 +128,11 @@
 let curtainsOpened = false;
 let eyeStateValue = '';
 let prelude_running = false;
+let intro_ran = false;
 
 function drawBlendShapes(el, blendShapes) {
   if (!blendShapes || blendShapes.length < 1) {
-    send("X");
+    // send("X");
     document.body.style.backgroundColor = "black";
     if (running) {reset();}
     return;
@@ -153,7 +154,7 @@ function eyeState() {
     console.log(eyeStateValue);
     document.body.style.backgroundColor = "green";
   } else {
-    seyeStateValue = 'O';
+    eyeStateValue = 'O';
     serial.write(eyeStateValue);
     console.log(eyeStateValue);
     document.body.style.backgroundColor = "white";
@@ -163,30 +164,38 @@ function eyeState() {
 function run() {
   document.body.style.backgroundColor = "white";
   running = true;
-  if (audio.paused) {audio.play();}
-  // console.log(audio.currentTime);
 
-  if (audio.currentTime > 19) { //ANNOUCEMENT FINISHED
-    audio.pause();
-    repeat.loop = true;
-    if(repeat.paused) {repeat.play();}
-    
-    eyeState();
+  if(intro_ran == false){
+    if (audio.paused) {audio.play();}
+    // console.log(audio.currentTime);
 
-    if(prelude_running == false){
-      if (eyeStateValue === 'C') {setTimeout(() => {
-        if (eyeStateValue === 'C') {prelude();}}, 2000);}
+    if (audio.currentTime > 19) { //ANNOUCEMENT FINISHED
+      audio.pause();
+      repeat.loop = true;
+      if(repeat.paused) {repeat.play();}
+      
+      eyeState();
+
+      if(prelude_running == false){
+        if (eyeStateValue === 'C') {setTimeout(() => {
+          if (eyeStateValue === 'C') {prelude();}}, 2000);}}
     }
   }
 }
 
 function prelude(){
+  console.log('ENTERED PRELUDE')
+  intro_ran = true;
   prelude_running = true;
-  if(curtainsOpened == false){
-    serial.write('1');
-    console.log("OPEN CURTAINS");
-    curtainsOpened = true;
-  }
+  repeat.pause();
+  audio.play();
+
+  setTimeout(() => {
+    if(curtainsOpened == false){
+      serial.write('1');
+      console.log("OPEN CURTAINS");
+      curtainsOpened = true;
+    }}, 29000);
 }
 
 
