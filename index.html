@@ -118,7 +118,8 @@
     }
 
     function myFunction() {
-      serial.write('T');
+      // serial.write('T');
+      // audio.currentTime = 190;
       console.log("my function");
     }
 
@@ -174,10 +175,10 @@ function eyeState() {
 function run() {
   document.body.style.backgroundColor = "white";
   running = true;
+  console.log(audio.currentTime);
 
   if(intro_ran == false){
     if (audio.paused) {audio.play();}
-    // console.log(audio.currentTime);
 
     if (audio.currentTime > 19) { //ANNOUCEMENT FINISHED
       audio.pause();
@@ -194,6 +195,11 @@ function run() {
           }}, 2000);}}
     }
   }
+
+  if (audio.currentTime > 200) {
+    console.log("CHANGE STAGEFRONT");
+    serial.write('U');
+  }
 }
 
 function prelude(){
@@ -209,12 +215,7 @@ function prelude(){
       console.log("OPEN CURTAINS");
       curtainsOpened = true;
       sendEyeState = true;
-      main();
     }}, 29000);
-}
-
-function main(){
-  console.log("is eyestate still running?");
 }
 
 
