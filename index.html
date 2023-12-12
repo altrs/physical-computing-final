@@ -119,7 +119,7 @@
 
     function myFunction() {
       // serial.write('T');
-      // audio.currentTime = 190;
+      audio.currentTime = 198;
       console.log("my function");
     }
 
@@ -131,6 +131,7 @@ let eyeStateValue = '';
 let prelude_running = false;
 let intro_ran = false;
 let sendEyeState = false;
+let stageFrontState = "Theatre";
 
 function drawBlendShapes(el, blendShapes) {
   if (!blendShapes || blendShapes.length < 1) {
@@ -199,6 +200,12 @@ function run() {
   if (audio.currentTime > 200) {
     console.log("CHANGE STAGEFRONT");
     serial.write('U');
+    stageFrontState = "Universe";
+  }
+
+  if (audio.currentTime > 237) {
+    console.log("FIN");
+    reset();
   }
 }
 
@@ -232,6 +239,12 @@ function reset() {
     serial.write('2');
     console.log("CLOSE CURTAINS");
     curtainsOpened = false;
+  }
+
+  if(stageFrontState == "Universe"){
+    serial.write('T');
+    console.log("Theatre");
+    stageFrontState = "Theatre";
   }
 
 }
