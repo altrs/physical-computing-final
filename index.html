@@ -126,15 +126,14 @@
 // MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN
 
 let curtainsOpened = false;
+let eyeStateValue = '';
+let prelude_running = false;
 
 function drawBlendShapes(el, blendShapes) {
   if (!blendShapes || blendShapes.length < 1) {
     send("X");
     document.body.style.backgroundColor = "black";
-    if (running) {
-      console.log("HUMAN REMOVED");
-      reset();
-    }
+    if (running) {reset();}
     return;
   } else {run();}
 
@@ -147,25 +146,17 @@ function drawBlendShapes(el, blendShapes) {
   score10 = data.categories[10].score;
 }
 
-function send(value) {
-  const currentTime = new Date().getTime();
-  if (currentTime - lastSendTime >= sendInterval) {
-    outByte = value;
-    serial.write(outByte);
-    console.log(outByte);
-    lastSendTime = currentTime;
-  }
-}
-
 function eyeState() {
   if (score9 > 0.5 || score10 > 0.5) {
-    send("C");
+    eyeStateValue = 'C';
+    serial.write(eyeStateValue);
+    console.log(eyeStateValue);
     document.body.style.backgroundColor = "green";
-    return 'C';
   } else {
-    send("O");
+    seyeStateValue = 'O';
+    serial.write(eyeStateValue);
+    console.log(eyeStateValue);
     document.body.style.backgroundColor = "white";
-    return 'O';
   }
 }
 
@@ -173,51 +164,50 @@ function run() {
   document.body.style.backgroundColor = "white";
   running = true;
   if (audio.paused) {audio.play();}
-  console.log(audio.currentTime);
+  // console.log(audio.currentTime);
 
-  if (audio.currentTime > 19) {
-    // console.log("ANNOUNCEMENT FIN");
+  if (audio.currentTime > 19) { //ANNOUCEMENT FINISHED
     audio.pause();
-    repeat.play();
     repeat.loop = true;
+    if(repeat.paused) {repeat.play();}
     
     eyeState();
-    if(curtainsOpened == false){
-      serial.write('1');
-      console.log("OPEN CURTAINS");
-      curtainsOpened = true;
+
+    if(prelude_running == false){
+      if (eyeStateValue === 'C') {setTimeout(() => {
+        if (eyeStateValue === 'C') {prelude();}}, 2000);}
     }
-    
-    // initialCloseInterval = setInterval(function () {
-    //   console.log("INTERVAL RUNNING");
-    //   if (outByte === "C") {consecutiveCCount++;}
-    //   else {consecutiveCCount = 0;}
-    // }, 100);
-
-    // if (consecutiveCCount >= 2000 / 100) {run2();}
   }
 }
 
-function run2() {
-  console.log("RUN2");
-  repeat.pause();
-  repeat.currentTime = 0;
-  intervalRunning = false;
-  if (audio.paused) {audio.play();}
-
-  if (audio.currentTime > 48) {
-    console.log("OPEN CURTAIN");
-    serial.write("P");
+function prelude(){
+  prelude_running = true;
+  if(curtainsOpened == false){
+    serial.write('1');
+    console.log("OPEN CURTAINS");
+    curtainsOpened = true;
   }
 }
+
 
 function reset() {
+  console.log("RESET");
   audio.pause();
   repeat.pause();
   audio.currentTime = 0;
   repeat.currentTime = 0;
   running = false;
 }
+
+// function send(value) {
+//   const currentTime = new Date().getTime();
+//   if (currentTime - lastSendTime >= sendInterval) {
+//     outByte = value;
+//     serial.write(outByte);
+//     console.log(outByte);
+//     lastSendTime = currentTime;
+//   }
+// }
 
   </script>
 </body>
